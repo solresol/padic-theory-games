@@ -11,15 +11,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.8.1
-        with:
-          ssh-private-key: ${{ secrets.DEPLOYMENT_SSH_KEY }}
+      - name: Write SSH key
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s" "${{ secrets.DEPLOYMENT_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
       - name: Rsync files
         run: |
           rsync -az --delete \
-            -e "ssh -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" \
             --exclude '.git/' \
             --exclude '.github/' \
             ./ numbertarget@merah.cassia.ifost.org.au:/var/www/vhosts/padic.arithmetic.guru/htdocs/

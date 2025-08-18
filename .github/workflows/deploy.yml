@@ -14,7 +14,7 @@ jobs:
       - name: Write SSH key
         run: |
           mkdir -p ~/.ssh
-          printf "%s" "${{ secrets.DEPLOYMENT_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.DEPLOYMENT_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
       - name: Rsync files

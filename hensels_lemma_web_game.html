@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hensel's Lemma Interactive Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .theory-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+        }
+
+        .theory-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .theory-section p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .formula {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 1.1em;
+            border: 2px solid #bdc3c7;
+        }
+
+        .game-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .level-title {
+            font-size: 1.4em;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .score {
+            background: #27ae60;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .problem-display {
+            background: #f1f2f6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 1.1em;
+        }
+
+        .polynomial {
+            font-family: 'Times New Roman', serif;
+            font-size: 1.3em;
+            color: #2c3e50;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .step {
+            background: #fff;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .step-header {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .calculation {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 8px 0;
+        }
+
+        .input-group {
+            margin: 15px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .feedback.success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border: 2px solid #27ae60;
+        }
+
+        .feedback.error {
+            background: #fadbd8;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+        }
+
+        .feedback.info {
+            background: #d6eaf8;
+            color: #3498db;
+            border: 2px solid #3498db;
+        }
+
+        .roots-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .root {
+            background: #3498db;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .root:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .root.selected {
+            background: #27ae60;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            background: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            height: 20px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 Hensel's Lemma Game</h1>
+            <p>Interactive Learning Adventure in Number Theory</p>
+        </div>
+
+        <div class="content">
+            <div class="theory-section">
+                <h2>🎓 What is Hensel's Lemma?</h2>
+                <p>Hensel's lemma is a powerful technique in number theory that allows us to "lift" solutions from modulo p to modulo p^k. It's like having a mathematical elevator!</p>
+                
+                <p><strong>The Main Idea:</strong> If we have a root r of polynomial f(x) modulo p, and the derivative f'(r) ≢ 0 (mod p), then we can find a unique root modulo p² that reduces to r modulo p.</p>
+                
+                <div class="formula">
+                    r<sub>k+1</sub> = r<sub>k</sub> - f(r<sub>k</sub>) × [f'(r<sub>k</sub>)]<sup>-1</sup> (mod p<sup>k+1</sup>)
+                </div>
+                
+                <p>This is essentially Newton's method in the p-adic numbers! Let's learn by solving problems together.</p>
+            </div>
+
+            <div class="game-section">
+                <div class="level-header">
+                    <div class="level-title">Level <span id="currentLevel">1</span></div>
+                    <div class="score">Score: <span id="currentScore">0</span></div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 25%">25%</div>
+                </div>
+
+                <div id="gameContent">
+                    <div class="step">
+                        <div class="step-header">🎯 Current Problem</div>
+                        <div class="problem-display">
+                            <div>Polynomial: <span class="polynomial" id="polynomialDisplay">f(x) = ?</span></div>
+                            <div>Prime: <span id="primeDisplay">p = ?</span></div>
+                        </div>
+                    </div>
+
+                    <div class="step" id="rootsStep">
+                        <div class="step-header">🔍 Step 1: Find Roots Modulo p</div>
+                        <div id="rootsContent">
+                            <p>First, let's find all roots of f(x) ≡ 0 (mod p):</p>
+                            <div class="calculation" id="rootsCalculation"></div>
+                            <div class="roots-display" id="rootsDisplay"></div>
+                        </div>
+                    </div>
+
+                    <div class="step hidden" id="derivativeStep">
+                        <div class="step-header">📐 Step 2: Check Lifting Condition</div>
+                        <div id="derivativeContent">
+                            <p>For Hensel's lemma to work, we need f'(r) ≢ 0 (mod p):</p>
+                            <div class="calculation" id="derivativeCalculation"></div>
+                            <div id="liftableRoots"></div>
+                        </div>
+                    </div>
+
+                    <div class="step hidden" id="chooseRootStep">
+                        <div class="step-header">🎯 Step 3: Choose a Root to Lift</div>
+                        <div id="chooseRootContent">
+                            <p>Select a liftable root to work with:</p>
+                            <div class="roots-display" id="liftableRootsDisplay"></div>
+                        </div>
+                    </div>
+
+                    <div class="step hidden" id="liftingStep">
+                        <div class="step-header">🚀 Step 4: Apply Hensel's Lifting</div>
+                        <div id="liftingContent">
+                            <p>Now let's lift the root from mod p to mod p²:</p>
+                            <div class="calculation" id="liftingCalculation"></div>
+                            
+                            <div class="input-group">
+                                <label for="userAnswer">What is the lifted root modulo p²?</label>
+                                <input type="number" id="userAnswer" placeholder="Enter your answer...">
+                            </div>
+                            
+                            <button class="btn" onclick="checkAnswer()">Submit Answer</button>
+                            <button class="btn btn-warning" onclick="showHint()">Show Hint</button>
+                        </div>
+                    </div>
+
+                    <div id="feedback" class="feedback hidden"></div>
+
+                    <div class="step">
+                        <button class="btn btn-success" onclick="newProblem()">New Problem</button>
+                        <button class="btn" onclick="nextLevel()" id="nextLevelBtn" disabled>Next Level</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class Polynomial {
+            constructor(coefficients) {
+                this.coeffs = coefficients.slice();
+                while (this.coeffs.length > 1 && this.coeffs[this.coeffs.length - 1] === 0) {
+                    this.coeffs.pop();
+                }
+            }
+
+            evaluate(x) {
+                let result = 0;
+                let power = 1;
+                for (let coeff of this.coeffs) {
+                    result += coeff * power;
+                    power *= x;
+                }
+                return result;
+            }
+
+            derivative() {
+                if (this.coeffs.length <= 1) {
+                    return new Polynomial([0]);
+                }
+                let derivCoeffs = [];
+                for (let i = 1; i < this.coeffs.length; i++) {
+                    derivCoeffs.push(i * this.coeffs[i]);
+                }
+                return new Polynomial(derivCoeffs);
+            }
+
+            toString() {
+                if (this.coeffs.length === 0) return "0";
+                
+                let terms = [];
+                for (let i = 0; i < this.coeffs.length; i++) {
+                    let coeff = this.coeffs[i];
+                    if (coeff === 0) continue;
+                    
+                    if (i === 0) {
+                        terms.push(coeff.toString());
+                    } else if (i === 1) {
+                        if (coeff === 1) terms.push("x");
+                        else if (coeff === -1) terms.push("-x");
+                        else terms.push(`${coeff}x`);
+                    } else {
+                        if (coeff === 1) terms.push(`x^${i}`);
+                        else if (coeff === -1) terms.push(`-x^${i}`);
+                        else terms.push(`${coeff}x^${i}`);
+                    }
+                }
+                
+                if (terms.length === 0) return "0";
+                
+                let result = terms[0];
+                for (let i = 1; i < terms.length; i++) {
+                    if (terms[i].startsWith('-')) {
+                        result += ` - ${terms[i].substring(1)}`;
+                    } else {
+                        result += ` + ${terms[i]}`;
+                    }
+                }
+                return result;
+            }
+        }
+
+        function modInverse(a, m) {
+            a = ((a % m) + m) % m;
+            for (let x = 1; x < m; x++) {
+                if ((a * x) % m === 1) return x;
+            }
+            return 1;
+        }
+
+        function findRoots(poly, p) {
+            let roots = [];
+            for (let x = 0; x < p; x++) {
+                if (poly.evaluate(x) % p === 0) {
+                    roots.push(x);
+                }
+            }
+            return roots;
+        }
+
+        function henselLift(poly, root, p) {
+            let fVal = poly.evaluate(root);
+            let deriv = poly.derivative();
+            let fPrimeVal = deriv.evaluate(root) % p;
+            let fPrimeInv = modInverse(fPrimeVal, p);
+            let correction = (-(fVal / p) * fPrimeInv) % p;
+            return (root + correction * p) % (p * p);
+        }
+
+        // Game state
+        let currentLevel = 1;
+        let currentScore = 0;
+        let currentPoly = null;
+        let currentPrime = null;
+        let currentRoots = [];
+        let liftableRoots = [];
+        let selectedRoot = null;
+        let correctAnswer = null;
+
+        function generateProblem(level) {
+            let coeffs, p;
+            
+            switch(level) {
+                case 1:
+                    // Simple: x^2 - a
+                    let a = [2, 3, 5, 6, 7, 8, 10][Math.floor(Math.random() * 7)];
+                    coeffs = [-a, 0, 1];
+                    p = [3, 5, 7][Math.floor(Math.random() * 3)];
+                    break;
+                case 2:
+                    // Linear: ax + b
+                    let aCoeff = Math.floor(Math.random() * 4) + 2;
+                    let b = Math.floor(Math.random() * 10) + 1;
+                    coeffs = [b, aCoeff];
+                    p = [7, 11, 13][Math.floor(Math.random() * 3)];
+                    break;
+                case 3:
+                    // Quadratic: x^2 + bx + c
+                    let bCoeff = Math.floor(Math.random() * 5) + 1;
+                    let c = Math.floor(Math.random() * 10) + 1;
+                    coeffs = [c, bCoeff, 1];
+                    p = [5, 7, 11][Math.floor(Math.random() * 3)];
+                    break;
+                default:
+                    // Cubic: x^3 + bx + c
+                    let bCubic = Math.floor(Math.random() * 4) + 1;
+                    let cCubic = Math.floor(Math.random() * 8) + 1;
+                    coeffs = [cCubic, bCubic, 0, 1];
+                    p = [5, 7][Math.floor(Math.random() * 2)];
+                    break;
+            }
+            
+            return { poly: new Polynomial(coeffs), prime: p };
+        }
+
+        function newProblem() {
+            let problem = generateProblem(currentLevel);
+            currentPoly = problem.poly;
+            currentPrime = problem.prime;
+            
+            // Find roots
+            currentRoots = findRoots(currentPoly, currentPrime);
+            
+            // Check if we have any roots
+            if (currentRoots.length === 0) {
+                newProblem(); // Try again
+                return;
+            }
+            
+            // Find liftable roots
+            let deriv = currentPoly.derivative();
+            liftableRoots = currentRoots.filter(root => deriv.evaluate(root) % currentPrime !== 0);
+            
+            // Check if we have liftable roots
+            if (liftableRoots.length === 0) {
+                newProblem(); // Try again
+                return;
+            }
+            
+            selectedRoot = null;
+            correctAnswer = null;
+            
+            updateDisplay();
+            resetSteps();
+            showFeedback("");
+            
+            document.getElementById('nextLevelBtn').disabled = true;
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentLevel').textContent = currentLevel;
+            document.getElementById('currentScore').textContent = currentScore;
+            document.getElementById('polynomialDisplay').textContent = `f(x) = ${currentPoly.toString()}`;
+            document.getElementById('primeDisplay').textContent = `p = ${currentPrime}`;
+            
+            // Update progress bar
+            let progress = (currentLevel / 4) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressBar').textContent = `${Math.round(progress)}%`;
+            
+            showRoots();
+        }
+
+        function showRoots() {
+            let rootsCalc = `Testing x = 0, 1, 2, ..., ${currentPrime-1}:\n`;
+            for (let x = 0; x < currentPrime; x++) {
+                let val = currentPoly.evaluate(x);
+                rootsCalc += `f(${x}) = ${val} ≡ ${val % currentPrime} (mod ${currentPrime})${currentRoots.includes(x) ? ' ✓' : ''}\n`;
+            }
+            
+            document.getElementById('rootsCalculation').textContent = rootsCalc;
+            
+            let rootsDisplay = document.getElementById('rootsDisplay');
+            rootsDisplay.innerHTML = '';
+            currentRoots.forEach(root => {
+                let rootElement = document.createElement('div');
+                rootElement.className = 'root';
+                rootElement.textContent = root;
+                rootsDisplay.appendChild(rootElement);
+            });
+            
+            document.getElementById('rootsStep').classList.remove('hidden');
+            
+            setTimeout(() => {
+                showDerivative();
+            }, 1000);
+        }
+
+        function showDerivative() {
+            let deriv = currentPoly.derivative();
+            let derivCalc = `f'(x) = ${deriv.toString()}\n\n`;
+            derivCalc += `Checking f'(r) ≢ 0 (mod ${currentPrime}) for each root:\n`;
+            
+            currentRoots.forEach(root => {
+                let derivVal = deriv.evaluate(root);
+                let derivMod = derivVal % currentPrime;
+                derivCalc += `f'(${root}) = ${derivVal} ≡ ${derivMod} (mod ${currentPrime})`;
+                derivCalc += liftableRoots.includes(root) ? ' ✓ Liftable\n' : ' ✗ Not liftable\n';
+            });
+            
+            document.getElementById('derivativeCalculation').textContent = derivCalc;
+            document.getElementById('derivativeStep').classList.remove('hidden');
+            
+            setTimeout(() => {
+                showChooseRoot();
+            }, 1500);
+        }
+
+        function showChooseRoot() {
+            let liftableDisplay = document.getElementById('liftableRootsDisplay');
+            liftableDisplay.innerHTML = '';
+            
+            liftableRoots.forEach(root => {
+                let rootElement = document.createElement('div');
+                rootElement.className = 'root';
+                rootElement.textContent = root;
+                rootElement.onclick = () => selectRoot(root);
+                liftableDisplay.appendChild(rootElement);
+            });
+            
+            document.getElementById('chooseRootStep').classList.remove('hidden');
+        }
+
+        function selectRoot(root) {
+            selectedRoot = root;
+            
+            // Update visual selection
+            document.querySelectorAll('#liftableRootsDisplay .root').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            showLifting();
+        }
+
+        function showLifting() {
+            if (selectedRoot === null) return;
+            
+            let deriv = currentPoly.derivative();
+            let fVal = currentPoly.evaluate(selectedRoot);
+            let fPrimeVal = deriv.evaluate(selectedRoot);
+            let fPrimeMod = fPrimeVal % currentPrime;
+            let fPrimeInv = modInverse(fPrimeMod, currentPrime);
+            
+            let liftingCalc = `Using Hensel's formula with r = ${selectedRoot}:\n\n`;
+            liftingCalc += `1. f(${selectedRoot}) = ${fVal}\n`;
+            liftingCalc += `2. f'(${selectedRoot}) = ${fPrimeVal} ≡ ${fPrimeMod} (mod ${currentPrime})\n`;
+            liftingCalc += `3. [f'(${selectedRoot})]⁻¹ ≡ ${fPrimeInv} (mod ${currentPrime})\n`;
+            liftingCalc += `4. Correction = -f(${selectedRoot})/${currentPrime} × ${fPrimeInv}\n`;
+            liftingCalc += `5. New root = ${selectedRoot} + correction × ${currentPrime}\n\n`;
+            liftingCalc += `Calculate the lifted root modulo ${currentPrime}²:`;
+            
+            document.getElementById('liftingCalculation').textContent = liftingCalc;
+            document.getElementById('liftingStep').classList.remove('hidden');
+            
+            // Calculate correct answer
+            correctAnswer = henselLift(currentPoly, selectedRoot, currentPrime);
+        }
+
+        function checkAnswer() {
+            let userInput = document.getElementById('userAnswer').value;
+            let userAnswer = parseInt(userInput);
+            
+            if (isNaN(userAnswer)) {
+                showFeedback("Please enter a valid number!", "error");
+                return;
+            }
+            
+            let modSquared = currentPrime * currentPrime;
+            if (userAnswer % modSquared === correctAnswer) {
+                currentScore += currentLevel * 10;
+                showFeedback(`🎉 Correct! The answer is ${correctAnswer}. 
+                Verification: f(${correctAnswer}) ≡ ${currentPoly.evaluate(correctAnswer) % modSquared} (mod ${modSquared})
+                +${currentLevel * 10} points!`, "success");
+                document.getElementById('nextLevelBtn').disabled = false;
+            } else {
+                showFeedback(`❌ Not quite right. The correct answer is ${correctAnswer}. 
+                Try to follow the step-by-step calculation above!`, "error");
+            }
+            
+            updateDisplay();
+        }
+
+        function showHint() {
+            let deriv = currentPoly.derivative();
+            let fVal = currentPoly.evaluate(selectedRoot);
+            let fPrimeMod = deriv.evaluate(selectedRoot) % currentPrime;
+            let fPrimeInv = modInverse(fPrimeMod, currentPrime);
+            let correction = Math.floor(-fVal / currentPrime) * fPrimeInv;
+            let modCorrection = ((correction % currentPrime) + currentPrime) % currentPrime;
+            
+            showFeedback(`💡 Hint: The correction is ${Math.floor(-fVal / currentPrime)} × ${fPrimeInv} = ${correction} ≡ ${modCorrection} (mod ${currentPrime}). 
+            So the lifted root is ${selectedRoot} + ${modCorrection} × ${currentPrime} = ${selectedRoot + modCorrection * currentPrime}.`, "info");
+        }
+
+        function nextLevel() {
+            if (currentLevel < 4) {
+                currentLevel++;
+                newProblem();
+            } else {
+                showFeedback(`🏆 Congratulations! You've mastered Hensel's Lemma! Final Score: ${currentScore}`, "success");
+            }
+        }
+
+        function resetSteps() {
+            document.getElementById('derivativeStep').classList.add('hidden');
+            document.getElementById('chooseRootStep').classList.add('hidden');
+            document.getElementById('liftingStep').classList.add('hidden');
+            document.getElementById('userAnswer').value = '';
+        }
+
+        function showFeedback(message, type = "") {
+            let feedback = document.getElementById('feedback');
+            feedback.textContent = message;
+            feedback.className = `feedback ${type}`;
+            feedback.classList.remove('hidden');
+        }
+
+        // Initialize the game
+        newProblem();
+    </script>
+</body>
+</html>
